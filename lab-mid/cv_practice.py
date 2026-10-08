@@ -347,6 +347,16 @@ plt.title("persp")
 
 plt.show()
 
+
+# undo a 45° rotation without chopping corners
+ang = 45; t = np.deg2rad(ang)
+new_w = int(h*abs(np.sin(t)) + w*abs(np.cos(t)))
+new_h = int(h*abs(np.cos(t)) + w*abs(np.sin(t)))
+R = np.array([[np.cos(t),-np.sin(t)], [np.sin(t), np.cos(t)]]) # manual 2x2 (sine & cosine)
+shift = np.array([new_w/2, new_h/2]) - R @ np.array([w/2, h/2]) # re-centre on the bigger canvas
+M = np.hstack([R, shift[:, None]]).astype(np.float32)
+fixed = cv2.warpAffine(img, M, (new_w, new_h))
+
 # xray enhancement
 xr = cv2.imread('data/samplexray.png', cv2.IMREADGRAYSCALE) # relative path!
 if xr is None: raise SystemExit('image not found')
