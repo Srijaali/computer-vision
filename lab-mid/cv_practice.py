@@ -347,3 +347,56 @@ plt.title("persp")
 
 plt.show()
 
+# xray enhancement
+xr = cv2.imread('data/samplexray.png', cv2.IMREADGRAYSCALE) # relative path!
+if xr is None: raise SystemExit('image not found')
+eq = cv2.equalizeHist(xr)
+heat = cv2.applyColorMap(eq, cv2.COLORMAP
+JET)
+_
+f = heat.astype(np.float32); m = f.reshape(-1,3).mean(0)
+bal = np.clip(f + (m.mean() - m), 0, 255).astype(np.uint8)
+_, dense = cv2.threshold(eq, 200, 255, cv2.THRESH
+BINARY)
+_
+log_
+x = (255/np.log(1+xr.max()) * np.log(1 +
+xr.astype(np.float32))).astype(np.uint8)
+gam
+_
+x = cv2.LUT(xr, np.array([(i/255)**0.6*255 for i in range(256)],
+np.uint8)) # gamma 0.6
+# plot: raw | equalized | heatmap | balanced | dense mask | log | gamma, then
+cv2.imwrite('output/...')
+
+# ct + mri
+
+
+
+# video read
+cap = cv2.VideoCapture('data/echo.mp4') # file path, not 0
+(0 = webcam)
+while True:
+if not cap.isOpened(): raise SystemExit('cannot open video')
+ok, frame = cap.read() # ok=False at end of
+video
+if not ok: break
+gray = cv2.cvtColor(frame, cv2.COLOR
+BGR2GRAY)
+_
+eq = cv2.equalizeHist(gray)
+heat = cv2.applyColorMap(eq, cv2.COLORMAP
+JET)
+_
+f = heat.astype(np.float32); m = f.reshape(-1,3).mean(0)
+f = np.clip(f + (m.mean() - m), 0, 255) # colour balance
+f = 255/np.log(1+f.max()) * np.log(1+f) # log: reveal dark
+chambers
+f = 255 * (f/255) ** 1.5 # power-law gamma>1:
+suppress bright backscatter
+out = f.astype(np.uint8)
+cv2.imshow('Raw | Enhanced'
+, np.hstack([frame, out])) # same height,
+same channels required
+if cv2.waitKey(25) & 0xFF == ord('q'): break
+cap.release(); cv2.destroyAllWindows()
